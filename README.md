@@ -1,226 +1,142 @@
-# Pet's Facial Expression Detection and Recognition
-![My Pet's Image](repo_img/happy_animal.png)
-## Background
-As computer vision techniques excel in human-centered fields, their adaptation for pet-centric applications becomes increasingly prevalent, deepening our insights into pets' emotions and mental health. Building on this momentum, several studies have explored this realm. Boneh-Shitrit et al.<sup>[1](#ref1)</sup> experimented with various deep-learning architectures to classify dogs' emotions based on their pictures. Sinnott et al.<sup>[2](#ref2)</sup> used a more extensive dataset, including 52 dog species and 23 cat species, and 300 images per species. They developed a machine learning model to classify both the pet's species and their associated facial expressions. The novel Convolutional Neural Network model IWOA–CNN designed by Yan et al.<sup>[3](#ref3)</sup> demonstrated its efficiency in dog expression recognition. However, further studies are still needed. In this project, we will focus on using computer vision techniques to detect and classify facial expressions on more diverse pets on a dataset containing 6+ pet categories (dogs, cats, rabbits, goats, etc.) and 4 facial expressions (happy, angry, sad, and other).
+# 核心交易系统
 
-## Dataset
-Our dataset comprises 1,000 jpg images of pet faces, classified into four emotional expressions: Sad, Angry, Happy, and Other (with each category precisely containing 250 images). The images showcase more than six types of pets to ensure diversity and inclusivity of the trained model. As the images are classified by animal behavior experts, the labels are considered sufficiently accurate to train our models. The dataset can be found in [our repo](https://github.com/Zhujie1573/CS4641-Team12/tree/main/dataset), or through the [link](https://drive.google.com/file/d/1ULijujD0HWwX2qqcKBQPOiZqBs5YR86o/view?usp=sharing).
-<br>
-<img src="repo_img/datadetail.png" width="250" height="400"><br>
+## 项目背景
 
-## Problem Definition & Motivation
-Pets are our most loyal companions, seamlessly blending into our families. They stand by us in moments of joy, celebrating life's highs, and offer solace during our lowest ebbs. What sets them apart is their remarkable ability to discern our emotions and respond with unwavering support. However, when it comes to reciprocating this understanding of their emotions, the task becomes less straightforward. Accurately gauging our pets' feelings is a crucial endeavor with profound implications for their mental well-being. Regrettably, many pet owners lack the necessary experience and expertise to decode their furry friends' emotions. To bridge this gap and provide the best care possible for our beloved companions, we envision creating a sophisticated machine learning model. This innovative tool will empower pet owners with the ability to recognize and understand their pets' emotions, thereby allowing them to better attend to their pets' mental health needs. After all, our pets are not just our closest friends; they are cherished members of our families deserving of our utmost care and attention.
+银行贷款，肯定是先把个人资料提交给银行做一个资料审核，贷钱嘛。资料审核就是交给银行，或者其他机构，审核看看有没有问题。贷中的话就是看你贷多少钱，还款计划，3年，5年之类的。贷后就是，钱用完了，开始还钱了或者说没有还钱要进行催收和征信数据的上报啥的。这个系统就是一个贷后的系统，贷后的系统主要就是说，因为你贷款，肯定绑定银行卡号，贷后就是要还这笔钱，还这笔钱的时候，一期一期的，把这个钱从你的银行卡里面划扣到银行或者资方的一个账号里面。
 
-## Data Preproccesing
-### 1. PCA
-1. Effect: PCA Principal Component Analysis) can reduce dimensionality, reduce noise, and increase the computation efficiency which can increase the training speed.
-2. Why PCA? The image data we are dealing with has high dimension. PCA can help reduce the dimensionality and prevent the overfitting issue. The feature extraction also helps the model have better generalizability.
-3. How we did PCA: We implemented reduce the dimensionality of the images via PCA through SVD. While reducing the dimensionality of an image can prevent overfitting and save some space, we want to first make sure we compress the image to the appropriate number of components. The 'number of components' vs 'variance' plot is generated. In the DenseNet-121 we choose to use num_components=89 since its corresponding variance is very close 1. Using the code we wrote in HW3, we generated the plot for each number of component on the x-axis to confirm our idea. It's clear that very small number of components will result losing important information and num of components larger than 67 look basically the same. Using PCA or not and finding the correct number of components to compress the image are importnat question to answer. We will continue to tweak this parameter.
-<p align="center">
-  <img src="repo_img/component_variance_pca.png" width="600" height="300"><br>
-  <img src="repo_img/component_gird_pca.png" width="600" height="600">
-</p>
+## 我们公司做的事情
 
-## Method & Algorithm
-In our project, we'll employ advanced deep learning methods and algorithms. We'll use Keras, a high-level neural networks API, to create a Convolutional Neural Network (CNN) using a Sequential model. We'll first tap into existing popular classification models like ResNet50 <sup>[4](#ref4)</sup>, DenseNet121 <sup>[5](#ref5)</sup>, and EfficientNetB0, using TensorFlow's Keras applications. To further enhance our model's performance, we will select the model with best performance and modify or add essential layers. Our CNN will include layers such as Conv2D, MaxPooling2D, Flatten, Dense, Activation, Dropout, and BatchNormalization. Additionally, we'll apply regularization techniques to prevent overfitting. This approach leverages state-of-the-art deep learning techniques to achieve our project's goals effectively.<br>
+助贷：我们公司主要做的是针对一些征信不是很好的人给他们放贷的，我们给他做担保，我们从中收取一些服务费，后续客户不还钱了，我们会需要给银行还钱，也就是理赔，后面会具体介绍。
+这个系统主要就是跟银行打交道的，这个钱从上游核算系统过来，到我们这个系统，会报给银行，银行把这个银行卡里面的钱扣到对应的一个资方账号里面。这个系统主要就是这样的一个功能。
 
-In evaluating our model, we'll utilize accuracy for a holistic assessment of classification across all facial expression categories, and the F1-score will elucidate the trade-off between precision and recall. Moreover, to address potential class imbalances, the AUC-ROC will be used to gauge discriminative performance. Lastly, a confusion matrix will be used to pinpoint specific misclassification instances.
+## 系统模块介绍
 
-### 1. EfficientNet
-#### a. Introduction and Advantages
-EfficientNets are advanced neural networks developed by Google that are designed to scale up more efficiently, meaning they can get better accuracy with less computational cost. They do this by adjusting network depth, width, and image resolution based on a set formula, which is different from just increasing the size of the network randomly. EfficientNets balance high accuracy and efficiency. It performs very well on image recognition tasks and doesn't need as much computational power as other models.
-#### b. Implementation
-In our project, we used a version of EfficientNet called B5. It's pre-trained, meaning it has already learned from a huge dataset called ImageNet. We made it fit our needs by changing the input shape to match our images and by adding layers that make decisions based on the number of classes we have. We kept the original learned patterns intact and added some techniques like batch normalization and dropout to make the model more reliable and to prevent it from just memorizing the training data. We used an optimizer called Adamax and a loss function suited for classifying images into categories. We also set up the training to stop automatically if the model isn't improving, to save time and resources.
-#### c. Result
-<p align="center">
-<img src="repo_img/effacc.png" width="350" height="350"><br>
-</p>
-<p align="center">
-<img src="repo_img/effloss.png" width="350" height="350"><br>
-</p>
-<p align="center">
-<img src="repo_img/effMatrix.png" width="350" height="350"><br>
-</p>
-The results from my EfficientNet model illustrate my learning journey through accuracy and loss metrics over 100 epochs, as well as a confusion matrix evaluating my classification performance. In the first graph, my training accuracy (red line) and validation accuracy (green line) increase over time, which shows that I am learning effectively. I reached my best accuracy at epoch 83. In the second graph, both training and validation losses decrease as I learn, with my best loss marked at epoch 89, indicating that my predictions are becoming more precise. The confusion matrix reveals my performance on a multi-class classification task with labels like "Angry", "Sad", "Happy", and "Other". It shows that I am quite proficient at classifying "Sad" and "Happy" emotions, although there are some misclassifications, mainly between "Sad" and "Other". Overall, I am on a positive learning curve and demonstrate decent classification capabilities, with opportunities for improvement in differentiating certain classes.
+### 渠道划分和交易报盘模块
 
-#### d. Discussion and Future Work
-One issue with EfficientNet is that it still needs a lot of data and computing power to start with. While its method for increasing size is systematic, it might not be perfect for all types of data or tasks. To deal with this, we could tweak the model more specifically for our data or use other methods to optimize the network's structure.
+#### 数据来源
 
-### 2. DenseNet-121 with PCA
-#### a. Introduction and Advantages
-DenseNet-121 introduces a unique architectural innovation in deep learning with its dense connectivity pattern, where each layer connects to every other layer in a feed-forward fashion. This design not only streamlines the training process by enhancing feature propagation but also reduces the model's complexity by minimizing the number of parameters. Such characteristics make DenseNet-121 exceptionally efficient for image classification tasks, capturing the attention of computer science researchers for its elegant handling of the vanishing-gradient problem and feature redundancy.
-#### b. Implementation
-This Kaggle dataset already helped us partition the image into training, validation, and test datasets. All the input data underwent PCA compression with number of components=89. The DensenNet-121 is trained 100 epochs in each experiment and validate every epoch.
-* Experiment 1: We first experimented with directly use DenseNet-121 with PCA preprocessing to train the pet emotion classification problem from scratch. The experiment results are not good. The accuracy of the model on the test dataset is 52.63%, meaning the model is slightly better than random guess (since we have 4 emotion categories, the random guess will result in a 25% accuracy on average). Therefore, we decided to switch to pretrained DenseNet-121 and do transfer learning on our pets emotion datasets.
-* Experiment 2: The DenseNet-121 we used is pretrained on ImageNet. In order to compare the model performace across different architectures, similar hyperparameters of EfficientNet was applied to DenseNet-121, where batch normalization, dropout layer with p=0.45, and Adamax optimizer were used. Specifically for the DenseNet-121, we incorperated dense layers with rectified linear unit (ReLU) activations that incorporate L1 and L2 regularization to further reduce overfitting.
-#### c. Result
-The model can classify pet's emotion correctly in most of the time. Here are two examples of the model's classification.
-<p align="center">
-<img src="repo_img/dense_train_valid.png" width="750" height="350"><br>
-</p>
-During the testing phase, DenseNet-121 in Experiment 2 can correctly classify pets' emotions in most of the time. Here are 4 example classiifcations.
-<p align="center">
-  <img src="repo_img/dense_emotion.png"><br>
-</p>
-We then analyzed the precision, accuracy, and f1-score for each category based on the performance of DenseNet-121 in Experiment 2 on the test dataset. From the table below, we will focus on the prediction on the 'Happy' category more in the next step as its precision and f1-score are relatively low compared to other categories.
-<div align="center">
-  
-| Emotion | Precision | Recall | F1-score |
-|---------|-----------|--------|----------|
-| Happy   | 0.6       | 0.75   | 0.67     |
-| Angry   | 0.8       | 0.62   | 0.7      |
-| Sad     | 0.83      | 0.67   | 0.74     |
-| Other   | 0.76      | 0.94   | 0.84     |
+交易数据全部来源于上游，上游每天会发起批扣，每天会跑定时任务，去数据库里面捞取要还款的数据，通过mq发到我们这个系统，我们首先会把这个数据进行落库，我们和上游系统核算，约定核算流水号作为幂等字段，数据库这个字段作为唯一索引，来防止重复消费，也就是重复扣钱，如果说这个数据在落库的时候，如果这个数据已经有了，那么肯定就会报错，报违反唯一约束的错误，这种异常我们就可以不处理的，对一些之前没有录过库的数据就正常录库,到交易主表（这里面是包含了所有渠道的交易），主表状态为待处理，落库成功，返回核算成功
 
-</div>
+#### 数据处理（渠道划分模块和交易模块）
 
-The confusion matrix is generated to further visualize the model prediction on all 4 class (happy, sad, angry, and other) and help us understand the specific misclassification vividly when prediction each categoruy. Additionally, the multi-calss ROC curve is plotted to illustrate the classification ability of DenseNet-121 as its threshold is varied and the AUC provides a single scalar value summarizing the overall performance of the classifier across each emotion category for all thresholds.This ROC-AUC plot further confirmed our model have good performance since the closer the AUC is to 1, the better DenseNet-121 performs.
-<p align="center">
-  <img src="repo_img/dense_confusion_matrix.png" width="400" height="400"> 
-  <img src="repo_img/dense_roc_auc.png" width="400" height="400"> <br>
-</p>
+1. **数据打批**
+   定时任务两分钟一次，捞取数据库五分钟之前，状态为待处理的数据，把这批数据处理为一个批次，同时将批次号记录在批次表，状态是待处理的
 
-#### d. Discussion and Future Work
-Our main goal for the next step is to reduce the number of miclassification for each category, as mentioned above. To achieve this, we plan to further experiment modifying the DenseNet-121 architecture by adding some layers at the end, increase the number of epochs to make the model fully learn from the dataset. Additional dataset will be used to make the model more generalizable.
+2. **渠道划分，并拆单**
 
-### 3. ResNet50
-#### a. Introduction and Advantages
-ResNet-50 is a deep convolutional neural network with 50 layers, known for its architecture that features residual connections, which are shortcuts that skip one or more layers. These residual connections help to alleviate the vanishing gradient problem that can occur with traditional deep networks, enabling training of much deeper networks. ResNet-50 utilizes a technique called 'bottleneck layers' to keep the computational load manageable despite its depth.
-#### b. Implementation
-For this project, we appled the ResNet50 model pre-trained over ImageNet which a custom classification head consisting of global average pooling followed by a dense layer with 3 units and a softmax activation function. The modified model is compiled with the categorical crossentropy loss function and the Adam optimizer. To prevent overfit, EarlyStopping is use which will restore the weights from the best epoch if the validation loss does not improve for 20 consecutive epochs. ReduceLROnPlateau is also used to reduce the learning rate if the validation loss does not improve for 10 epochs. The model is trained over 50 epoches with 10% of trainting data used as validation data.
-#### c. Result
-From the learning curve and the accuracy curve we can see that the result is not very good underthe current model. The accuracy curve for the validation data fluctuates a lot bettween differnt epoch which means this model is not consistant and robust to the test cases.
-<p align="center">
-  <img src="repo_img/Learning_curve.png" width="400" height="400"> 
-  <img src="repo_img/Accuracy_curve.png" width="400" height="400"> <br>
-</p>
-The following confusion matrix shows the classification result for each of the happy, sad, and angry class. We can see that the dataset is pretty uneven, and the number of picrtures for angry class is significantly less than the others. A multi-class ROC graph is also included in here, and we can notice that the calssification result is not very good becuase AUCs are pretty far from 1.
-<p align="center">
-  <img src="repo_img/Confusion_matrix.png" width="400" height="400"> 
-  <img src="repo_img/ROC.png" width="400" height="400"> <br>
-</p>
-The flollowing table shows the precision, recall, and F1 score for each of the class.
-<p align="center">
-<img src="repo_img/stats.png" width="350" height="150"><br>
-</p>
+   定时任务驱动，将主表的数据通过业务配置的规则划分到对应的渠道里面并进行拆单（渠道一般两张表，主表和明细表，一对多的关系）
+   定时任务两分钟一次捞取待处理的批次表中的批次号，程序中结合业务人员在后台管理页面配置的，渠道划分规则，比如，银行限额，银行是否在维护是否需要签约，一次签约还是每次交易都要进行签约等一系列规则，最终把交易划分到具体的某个渠道里面。
+   因为这个系统背后对接了很多的渠道，比如直连银行类，农行，建行，工行，还有就是第三方支付机构。那我们首先会根据业务，配置一些规则，比如这个银行在某个时间段需要维护，那交易就不能提交到这个银行，或者这个银行有一个限额要求。这是打批的一个定时任务个日限额多少钱，月限额多少钱。如果你这笔单比较大的话，就需要拆单，或者直接不走还要就是渠道划分，有很多批次号，批次有一张表，状态也是待处理，捞这个批次表，然后根据批次进行渠道划分，渠道划分的过程中，就会去结合规则，就是配置规则，限额了等等，最终会划分到具体的一个渠道，比如划分到农行渠道，如果这笔交易比较大，会分成两张表张图表，一张明细表(就是银行会有限额要求，就将主单拆成明细单，每个明细的最大金额肯定是不能超过银行的金额)。
 
-#### d. Discussion and Future Work
-The result of ResNet50 over the data set still has a large room for improvement. We might want to adjust to use 100 epoches with better data preprocessing techniques, experiment with more activation functions and optimizers to help to improve the accuracy and F1 score of this model.
+3. **交易报盘**
+   第三个任务就是交易报盘，把明细表状态待处理的数据捞出来，在代码中进行一些字段处理后报盘给到银行，报盘的意思就是说把这笔交易按银行的加密规则发送到银行那边，银行那边后续流程比较长，比如当时不能拿到交易结果，可能就是交易中。
 
+4. **交易结果查询**
 
-## Analysis of 3 Algorithms/Models
-### ResNet50:
+   时间也是两分钟一次，捞取一些交易未明确的状态的数据，去调用银行的交易查询把交易状态结果查回来，把金额和状态更新到明细表中。
 
-#### Overview: 
-ResNet50 is part of the ResNet (Residual Networks) family, known for its deep network architecture. It consists of 50 layers and is widely recognized for its ability to solve the vanishing gradient problem through the use of skip connections or shortcut connections.
+5. **交易结果汇总，并返回上游**
+   定时任务驱动，此时交易结果还在明细表里面，还没在主表里面，此时会把这些明细表的数据里一个主单下所有明细数据都是终态的数据金额和状态汇总到渠道的主表和刚进来的大表里面，最终把这笔数据结果给核算，这个流程就算走完了，
 
-#### Relevance to Project: 
-In pet facial expression detection, ResNet50 can effectively handle deep learning challenges, like recognizing subtle features in pet faces. The skip connections help in preserving information even as the network goes deeper, which is crucial for detailed feature extraction in varied pet expressions.
+   **以上五步是我们系统的逻辑**，下面是这句话是上游核算系统要做的一些事情，了解就行
 
-#### Potential Advantages: 
-Excellent at handling deeper networks without losing performance, making it suitable for complex tasks like expression recognition. The architecture is robust against overfitting to a certain extent due to its depth.
+   上游核算会进行对应一些后续的逻辑处理，比如，还款计划的更新之类的，就告诉这个人，交易的结果，成功或者失败，如果客户没有还的话，就会有催收打电话，后续核算的这点流程就跟我们系统没有关系。
 
-#### Limitations: 
-The sheer size of the network can be a drawback in terms of computational cost and time, especially if the available dataset is not extensive enough to fully utilize its capabilities.
+### 签约
 
-### DenseNet121:
+背景：想从这个客户的卡上扣到钱，必须要先让客户同意签约，拿生活中的举例：你现在把你的银行卡绑定到支付宝上，你输入完个人信息，会发一条验证码的短信到你的手机上，告诉你的银行卡要绑定到支付宝，进行扣款啥的操作，你输入短信验证码，就可以进行绑定的，后续就可以进行扣款操作了。原本的写法是我们在程序中先判断不为空，在进行规则校验，代码复用性不好，后续接入其他直连银行时，这个注解可以复用的
 
-#### Overview:
-DenseNet121, part of the DenseNet (Densely Connected Convolutional Networks) family, is characterized by its dense connections, where each layer is connected to every other layer in a feed-forward fashion.
+### 充值
 
-#### Relevance to Project: 
-For pet facial expression detection, DenseNet121's feature reuse ability can be highly beneficial. It ensures maximum information flow between layers, which can be crucial for distinguishing between nuanced expressions in pets.
+#### 背景
 
-#### Potential Advantages: 
-The architecture is highly efficient in terms of computational cost, as it requires fewer parameters than traditional CNNs. It is also less prone to overfitting and can be more accurate due to the improved flow of information.
+我们公司作为担保方，有一些人征信不达标，去银行借不到钱，此时来公司，我们做担保，去给他放贷，我们收取服务费，那存在这种场景，客户不还钱，资方（银行）肯定不能亏钱，此时我们作为担保方，就要钱还给给到银行，后续我们找客户进行追偿（知道就行，我们系统不负责）
 
-#### Limitations: 
-Dense connections can lead to a large increase in memory footprint, which might be a constraint for resource-limited environments.
-### EfficientNetB5:
+**实现逻辑**
 
-#### Overview: 
-EfficientNetB5 is a part of the EfficientNet family, known for its scalable architecture. It uses a compound scaling method to uniformly scale all dimensions of depth, width, and resolution of the network.
-#### Relevance to Project: 
-In the context of pet facial expression detection, EfficientNetB5 offers a good balance between accuracy and efficiency. It can handle complex patterns in pet expressions while being resource-efficient.
-#### Potential Advantages: 
-Provides a balance between performance and computational resources. It's scalable, allowing for adjustments based on the available computing power and dataset size.
-#### Limitations: 
-The performance heavily depends on the proper scaling of the network. Under-scaling or over-scaling can lead to suboptimal results.
+充值其实也就是把钱从一个账户扣到另外一个账户，这种和前面那种交易数据其实是一样的，只是收款方和付款方不一样而已，所以本质没有啥区别的，
 
-## Comparison: ResNet50 vs DenseNet121 vs EfficientNetB5
-### Training & Validation Curves:
-Both ResNet50 and DenseNet121 have steady increase over 100 epochs and were able to converge to a high accuracy and low loss on training and validation dataset. However, the EfficientNetB5 was less efficient to converge to a high accuracy. Based on EfficientNetB5's accuracy curves, its training and validation accuracy began to fluctuate between 0.35 and 0.4 after epoch 10. This variation might due to different data preprocessing, data augmentation, different initialization, etc.
-### Precision, Recall, and F1-score:
-We have precision, recall, and f1-score available for both DenseNet121 and EfficientNetB5. Compared to EfficientNetB5, the average precision difference across all 3 categories (Happy, Sad, Angry) is 0.3033, the average recall difference across all 3 categories is 0.29, and the average f1-score different across all 3 categories is 0.3767. Both DenseNet121 and EfficientNetB5 have very low precision in the category of happy.
+这个理赔的账户，资金达到小于某个值，就会触发充值的交易过来。
 
-Based on the confusion matrix of ResNet50, I calculated the precision, recall, and f1-score.
-<div align="center">
-  
-| Emotion | Precision | Recall | F1-score |
-|---------|-----------|--------|----------|
-| Happy   | 0.86      | 0.90   | 0.88     |
-| Angry   | 0.86      | 0.89   | 0.87     |
-| Sad     | 0.94      | 1.00   | 0.97     |
+### 理赔
 
-</div>
-Compared to DenseNet121, in ResNet50 the average precision difference across all 3 categories (Happy, Sad, Angry) is -0.1433, the average recall difference across all 3 categories is -0.25, the average f1-score difference across all 3 categories is -0.2033. In contrast with DenseNet121 and EfficientNetB5, ResNet50 has very high precision in the category of happiness. Therefore, based on the precision, recall, and f1-score presented, ResNet50 has the first-place performance, DenseNet121 has the second place performance, and EfficientNetB5 has the third place performance.
+结合上面的充值的业务就是从我们的理赔的账号的钱划扣到资方的那个账号里面，完成还款操作，后续我们债权关系就发生转移了，我们需要找客户还钱了。
 
-### Confusion Matrix:
-The confusion matrices for ResNet50, DenseNet121, and EfficientNetB5 provides a visulization of precision, recall, and f1-score mentioned above.
+## 个人职责
 
-### Next Step:
-We can clearly see that every CNN architecture has various performance in each category on different metric. Thus, we plan to first investigate on why EfficientNetB5 has comparatively inferior performance by first extending its training epochs to 100 and then diving deeper into settings like model initializations, etc. 
-## Timeline & Responsibility
-The Timeline & Responsibility spreadsheet can be accessed through the [link](https://docs.google.com/spreadsheets/d/1KKS6dfy5047rFeydJ3CbfcBmkDKMImo_41aFWszzc4E/edit?usp=sharing).
+### 职责1
 
-## Contribution Table
+背景：系统比较老，当时用的框架比较老，ibatis，就要去升级成mybatis
 
-| Student Name | Contribution in Final Report |
-|----------|----------|
-| Zhujie Xu | Analysis of 3 Algorithms/Models|
-| Kuancheng Wang | Comparison: ResNet50 vs DenseNet121 vs EfficientNetB5|
-| Pengyu Mo | Video: <br>1.Video recording<br>2.Design and beautification<br>3.Explaining method and evaluation<br>4.Video Editing<br>5.Gantt Chart timeline planning|
-| Zexiu An | Video: <br>1.Video recording<br>2.Design and beautification<br>3.Explaining method and evaluation<br>4.Video Editing<br>5.Gantt Chart timeline planning|
-| Minkun Lei | Video: <br>1.Video recording<br>2.Design and beautification<br>3.Explaining method and evaluation<br>4.Video Editing<br>5.Gantt Chart timeline planning|
+这种系统比较老，当时用的框架比较老，ibatis，就要去升级成mybatis，就需要做一个改造，这个活说起来很简单就是简单的标签替换，没有什么技术含量的，就是比较繁琐，因此交给实习生来做了，你在做的过程中，发现mybatis 里面都有对应的一个替代标签去替换，此时你发现项目 xml 有几十个，一个个对 sql进行修改，比较繁琐，然后我就发现，ibatis 有对应 myabtis 的一个标签，就写一个替换工具，把ibatis的标签替换成mybatis的标签，（实现细节，首先你先对一个sql进行替换，先把对应的文本读取为字符串，然后对字符串进行替换，没问题，就一个xml文件进行替换，也没有问题，就整个文件下的进行替换)。这个时候程序-跑，就把项目里的标签都替换完，提高了一个开发效率。
 
-| Student Name | Contribution in Midterm |
-|----------|----------|
-| Zhujie Xu | Code, visualize, and write the section:<br>1.EfficientNet<br>1(a) Introduction and Advantages<br>1(b) Implementation<br>1(c) Results<br>1(d) Discussion and Future Work |
-| Kuancheng Wang | Code, visualize, and write the section:<br>1.PCA<br>2.DenseNet-121<br>2(a) Introduction and Advantages<br>2(b) Implementation<br>2(c) Results<br>2(d) Discussion and Future Work |
-| Pengyu Mo | Code, visualize, and write the section:<br>3.ResNet50<br>3(a) Introduction and Advantages<br>3(b) Implementation<br>3(c) Results<br>3(d)  Discussion and Future Work |
-| Zexiu An | Completed Dataset Description<br>Completed Timeline/Gantt Chart<br>Proofread and edit the github page to ensure all requirements in midterm checklist are met<br>Edit the format of Github page |
-| Minkun Lei | Completed Dataset Description<br>Completed Timeline/Gantt Chart<br>Proofread and edit the github page to ensure all requirements in midterm checklist are met<br>Edit the format of Github page |
+**这个职责可以用来回复项目中的亮点**，你自己通过自己的实践，将原本比较繁琐的事情，通过程序去处理，自己自主去发现并实现的，这个就非常好的
 
-| Student Name | Contribution in Proposal |
-|----------|----------|
-| Zhujie Xu | Write GitHub page: <br>1.motivation<br>2.method & algorithm<br>3.timeline/responsibility<br>4.contribution table<br>5.upload dataset file and attach link |
-| Kuancheng Wang | Write GitHub page: <br>1.background<br>2.potential results & discussion<br>3.references<br>4.reformat README |
-| Pengyu Mo | Video: <br>1.Video recording<br>2.Design and beautification<br>3.Explaining method and evaluation<br>4.Video Editing<br>5.Gantt Chart timeline planning |
-| Zexiu An | Video: <br>1.Video recording<br>2.construct Powerpoint structure and add contents <br>3.Explain motiviation and describe purpose<br>4.README file update and proof-reading<br>5.checking for rubrics regarding github page and video recording |
-| Minkun Lei | 1.Video recording<br>2.Check the requirement for this proposal on Ed and Class Homepage, ensuring all components are covered in our github page<br>3.README proof-reading |
+#### 参考文档
+
+标签替换细节
+
+- mapper里面开头的那一段标签是不同的（这个是上来就要替换的），
+
+- 具体写sql时的一些标签也是不同的，这个地方随便记几个mybatis和ibatis相同用法的标签就行，比如：循环的标签，判空的标签两者的替代品
+
+mybatis常用标签：https://blog.csdn.net/m0_38054145/article/details/81906343
+
+ibatis常用标签：https://blog.csdn.net/earl_yuan/article/details/41743693
+
+简单标签对比：https://blog.csdn.net/u012129558/article/details/106102634
+
+### 职责2
+
+**背景**：公司需要对各个系统之间的调用关系和调用耗时信息和后续拓展做一些接口的鉴权信息进行统计啥的，公司的架构组做了一个sdk工具可以实现拦截调用的请求，抓取我们头信息进行上报，把信息通过MQ发送到他们自己的业务平台并落库，这样在他们的平台就可以看到一些调用的信息了。
+
+**具体实现**：
+
+1. 引入服务治理的jar包，将maven的坐标放到我们的pom中。
+2. 需要在项目启动时把他们的相关类加载到spring容器中。
+3. 在我们的系统调用其他系统时把相应的信息放入到请求头里面（组名，系统名称，时间戳），这个就包括了http的调用和fegin的调用啥的两种，具体实现下面文档有伪代码。
+
+**详细描述：**参与服务治理，公司里面有架构组，架构组需要对系统进行一个统计，每次调用的时候，就把 http 的一些头信息上报到平台，平台就会看调用链路，耗时，上下游的调用关系。为了方便管理，就需要接入服务治理平台，在 http 接口或 feign 调用的时候，需要把头信息里面加上这个系统，它们的平台，首先我们会加入它们的jar 包，启动的时候，把一些类加载进来，调用的时候把一些头信息赛进去。Jar包里面就会拦载 http 接口，然后去把头信息拿出来，发送到它们的平台。这个地方，系统里面有很多 http接口，那一个个设置头信息比较麻烦，然后就通过一个拦截器，把系统名称一些信息配置好，调用的时候就会拦截，上报给服务治理平台。
+
+#### 参照文档
+
+openFegin拦截器使用，只看头半段就行：https://zhuanlan.zhihu.com/p/528834129
+
+Okhttp拦截器使用：https://blog.csdn.net/u011943534/article/details/119334465
+
+### 职责3
+
+**背景**：接入建行渠道进行扣款
+
+**具体实现逻辑**：
+
+通过AOP绑定自定义注解，通过在切面中写自己的校验规则进行一些字段的校验，我们只需要在要校验的属性（姓名，手机号，银行卡号）上加入这个注解就行的，具体的校验逻辑在切面中进行实现就行，就不需要 if 去判断。其他银行用的时候也可以使用。（具体实现伪代码）
+
+**详细描述：**参与建行直连渠道，直连银行签约部分的开发，对于前端提交过来的我们要对手机号，银行卡号，姓名等信息进行校验，只有合法了，才回去调用银行的签约接口，对于这个校验我们程序中最简单直接的做法就是，先判空再去验证对应的正则表达式，这种方式代码复用性较低，然后你那边通过AOP绑定一个注解，对注解进行前置增强，在切面里进行正则的匹配，符合才会走到我们的方法，不符合，直接返回对应的信息给到前端的。这个注解其他银行也可以适用的。
+
+#### 参考文档
+
+自定义注解的使用
+https://blog.csdn.net/weixin_58973530/article/details/130596633?spm=1001.2101.3001.6650.9&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-9-130596633-blog-126713640.235%5Ev43%5Epc_blog_bottom_relevance_base5&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-9-130596633-blog-126713640.235%5Ev43%5Epc_blog_bottom_relevance_base5&utm_relevant_index=14
+
+### 职责4
+
+**背景：**我们对接了很多银行，很多渠道，每次版本发布的时候，测试都要做一次回归测试，主要是把系统中的一些核心功能，再跑一次，验证本次是否又改出问题)，每个版本都要进行，有的时候银行在测试在维护，或者他们的测试不配合，想让他们造一些场景来验证一些东西，合作方的人比较忙或者不配合，我们这边就比较被动的，此时想着我们可以mock银行的返回，完成自闭环，验证我们内部的逻辑。这个功能就是这样的。
+
+实现细节描述：
+
+1. 首先和我们测试约定，我们把上游的核算流水号的后六位作为规则字段，测试会去建一张表，用来配置规则字段和模拟银行返回的mock的文本数据的记录，测试一定是会知道这个交易会划分到那个渠道，并且对应我们的处理是会成功还是失败的。
+2. 在各个渠道的最末端加一个开关
+   - 开关打开：我们回去截取核算流水号的后六位作为规则字段加上渠道的code去查询数据库测试配置的那个mock数据，去模拟银行的返回（这个功能只在测试环境使用，生产一定是关闭的）
+   - 开关关闭：走真实的逻辑，去调用银行，进行返回
+
+**详细描述：**自动化mock功能，我们对接了很多银行，很多渠道，每次调用的时候，都要做一次回归测陆(系统改造了，把系统中的一些功能，再跑一次)回归每个版本都要进行，但银行在维护，或者其他什么事情，不配合，卡住了。这个功能就是去模拟银行的返回，因为知道它们参数返回是什么样的，现在就模拟它们的返回，模拟一些场景。正常一笔数据的明细表调出去，就有一个 mock的开关，把开关一开，这个功能是和测试用的，在测试环境的时候，把开关打开，进行调整。通过流水号后6位和渠道code查到测试配置的mock对应的返回的数据程序中，然后程序去跑，金额计算啥的，验证程序的逻辑。
+
+#### 表字段信息
+
+| id（主键） | channel_code（渠道码值） | rule_code（规则字段） | mock_msg（模拟返回文本） | flag（程序处理标志） | create_by | create_date | update_by | update_date |
+| ---------- | ------------------------ | --------------------- | ------------------------ | -------------------- | --------- | ----------- | --------- | ----------- |
+| 1          | CCB_Direct               | 123123                |                          | S                    |           |             |           |             |
 
 
-# Checkpoints
-Checkpoint 1:<br>
-10/6: Proposal<br>
-Checkpoint 2:<br>
-10/29: Finish data prepocess<br>
-Checkpoint 3:<br>
-11/11: Finish coding model train and test<br>
-Checkpoint 4:<br>
-11/24: Improve models<br>
-Checkpoint 5:<br>
-12/5: Write final report<br>
 
-
-## Reference
-<a name="ref1"></a>
-[1] Boneh-Shitrit, Tali, et al. "Deep Learning Models for Automated Classification of Dog Emotional States from Facial Expressions." arXiv preprint arXiv:2206.05619 (2022).  
-<a name="ref2"></a>
-[2] Sinnott, Richard O., et al. "Run or pat: using deep learning to classify the species type and emotion of pets." 2021 IEEE Asia-Pacific Conference on Computer Science and Data Engineering (CSDE). IEEE, 2021.    
-<a name="ref3"></a>
-[3] Mao, Yan, and Yaqian Liu. "Pet dog facial expression recognition based on convolutional neural network and improved whale optimization algorithm." Scientific Reports 13.1 (2023): 3314.  
-<a name="ref4"></a>
-[4] He, Kaiming, et al. "Deep residual learning for image recognition." Proceedings of the IEEE conference on computer vision and pattern recognition. 2016.  
-<a name="ref5"></a>
-[5] Huang, Gao, et al. "Densely connected convolutional networks." Proceedings of the IEEE conference on computer vision and pattern recognition. 2017.
